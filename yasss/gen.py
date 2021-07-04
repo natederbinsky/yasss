@@ -1,8 +1,8 @@
-from typing import Any, Iterable, Mapping
+from typing import Any, Callable, Iterable, Mapping, Tuple, Union
 from typing_extensions import Literal
 
 from sys import stderr
-from os import makedirs, path
+from os import makedirs, path, walk
 from shutil import rmtree, copyfile
 
 from jinja2 import Environment, PrefixLoader, PackageLoader, FileSystemLoader, select_autoescape # type: ignore
@@ -19,7 +19,7 @@ def clean(destination: str) -> None:
         rmtree(destination)
 
 
-def build(templ_name: str, templ_dir: str, site_dir: str, destination: str, pages: Iterable[str]=(), templ_resources: Iterable[str]=(), site_resources: Iterable[str]=(), templ_data: Mapping[str, Any]={}, site_data: Mapping[str, Any]={}, globals: Mapping[str, Any]={}) -> Literal[True]:
+def build(templ_name: str, templ_dir: str, site_dir: str, destination: str, pages: Iterable[str]=(), templ_resources: Iterable[Union[str, Tuple[str, Callable[[str, str], bool]]]]=(), site_resources: Iterable[Union[str, Tuple[str, Callable[[str, str], bool]]]]=(), templ_data: Mapping[str, Any]={}, site_data: Mapping[str, Any]={}, globals: Mapping[str, Any]={}) -> Literal[True]:
     """Generic function to build a site given a template.
 
     First, removes the destination folder and creates an
@@ -68,19 +68,38 @@ def build(templ_name: str, templ_dir: str, site_dir: str, destination: str, page
     # Copy static resources
     ###
 
-    def resource_copy(fname: str, templ_resource: bool) -> None:
-        s_fname = path.join(templ_dir if templ_resource else site_dir, fname)
-
-        d_fname = path.join(destination, fname)
+    def resource_copy(s_fname: str, d_fname: str) -> None:
         makedirs(path.dirname(d_fname), exist_ok=True)
-
         copyfile(s_fname, d_fname)
     
+    def resource_walk(s_dir: str, prefix: str, filter_f: Callable[[str, str], bool]) -> None:
+        for root, dirs, files in walk(s_dir):
+            for fname in files:
+                rel_path = root[len(prefix)+1:]
+                if filter_f(rel_path, fname):
+                    resource_copy(path.join(root, fname), _dest(path.join(rel_path, fname)))
+    
+    def _source_templ(s: str) -> str:
+        return path.join(templ_dir, s)
 
-    for fname in templ_resources:
-        resource_copy(fname, True)
+    def _source_site(s: str) -> str:
+        return path.join(site_dir, s)
 
-    for fname in site_resources:
-        resource_copy(fname, False)
+    def _dest(s: str) -> str:
+        return path.join(destination, s)
+
+    #
+
+    for r in templ_resources:
+        if isinstance(r, str):
+            resource_copy(_source_templ(r), _dest(r))
+        else:
+            resource_walk(_source_templ(r[0]), templ_dir, r[1])
+
+    for r in site_resources:
+        if isinstance(r, str):
+            resource_copy(_source_site(r), _dest(r))
+        else:
+            resource_walk(_source_site(r[0]), site_dir, r[1])
 
     return True

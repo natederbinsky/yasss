@@ -25,6 +25,7 @@ Let's assume a good template already exists...
    - **destination**: the path to the folder in which to build your site (**note: this folder will be deleted prior to each build**).
    - **pages**: the list of pages (i.e., file names relative to the site folder) to render using Jinja.
    - **resources**: the list of files (relative to the site folder) to be copied to the destination.
+      - Can also take the form of a tuple `(dir, predicate)`, where the first is a path (relative to the site folder) to a directory, and the second is a function that indicates whether or not to copy each recursively contained file via its relative path and file name.
    - **data**: site-specific data to make available to site pages.
    - **globals**: site-specific globals to make available to site pages.
 
