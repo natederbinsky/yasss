@@ -59,10 +59,13 @@ def build(templ_name: str, templ_dir: str, site_dir: str, destination: str, page
     )
     env.globals.update(**globals)
 
-    for fname in pages:        
+    for fname in pages:
+        dpath = path.join(destination, fname)
+        makedirs(path.dirname(dpath), exist_ok=True)
+
         env.get_template('{}/{}'.format(SITEPREFIX, fname)) \
         .stream(_tdata=templ_data, data=site_data) \
-        .dump(path.join(destination, fname))
+        .dump(dpath)
 
     ###
     # Copy static resources
