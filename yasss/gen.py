@@ -56,10 +56,10 @@ def build(templ_name: str, templ_dir: str, site_dir: str, destination: str, page
             SITEPREFIX: FileSystemLoader(site_dir)
         }),
         autoescape=select_autoescape(enabled_extensions=('htm', 'html')),
-        globals={
-            'template_fname': lambda s: s._TemplateReference__context.name[s._TemplateReference__context.name.rfind('/')+1:],
-        }
     )
+    env.globals.update(**{
+        'template_fname': lambda s: s._TemplateReference__context.name[s._TemplateReference__context.name.rfind('/')+1:],
+    })
     env.globals.update(**globals)
 
     for fname in pages:
