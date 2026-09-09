@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "yasss"
+name = "nate-yasss"
 version = "0.1.0"
 description = "Yet Another Static Site System"
 readme = "README.md"
