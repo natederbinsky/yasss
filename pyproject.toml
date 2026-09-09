@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools >= 82.0.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "yasss"
+version = "0.1.0"
+description = "Yet Another Static Site System"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [
+    { name = "Nate Derbinsky", email = "nate.derbinsky@gmail.com" }
+]
+urls = { Homepage = "https://derbinsky.info", Repository = "https://github.com/natederbinsky/yasss" }
+dependencies = [
+    "Jinja2 ~= 3.0.1",
+    "jinja2-highlight ~= 0.6.1",
+    "Pygments ~= 2.9.0",
+    "typing_extensions ~= 3.10.0.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["yasss"]
